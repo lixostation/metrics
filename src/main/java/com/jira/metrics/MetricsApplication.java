@@ -1,12 +1,17 @@
 package com.jira.metrics;
 
+import java.util.List;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import com.jira.metrics.domain.SearchResult;
-import com.jira.metrics.service.SearchResultService;
+import com.jira.metrics.domain.JQLSearchResult;
+import com.jira.metrics.domain.Worklog;
+import com.jira.metrics.service.IssueService;
+import com.jira.metrics.service.JQLSearchResultService;
+import com.jira.metrics.service.WorklogService;
 
 @SpringBootApplication
 public class MetricsApplication {
@@ -17,10 +22,17 @@ public class MetricsApplication {
 
 	
 	@Bean
-	public CommandLineRunner run(SearchResultService searchResultService) throws Exception {
+	public CommandLineRunner run(JQLSearchResultService searchResultService, 
+			                     IssueService issueService,
+			                     WorklogService worklogService) throws Exception {
 		return args ->{
-			SearchResult searchResult = searchResultService.runJQL();
-			searchResultService.saveIssuesToElastic(searchResult.getIssues());
+			JQLSearchResult jqlSearchResult = searchResultService.runJQL();
+			
+			issueService.saveIssuesToElastic(jqlSearchResult.getIssues());
+			List<String> issueKeyList = issueService.getIssuekeysFromElastic();
+			
+			List<Worklog> worklogList = worklogService.getWorklogsFromJira(issueKeyList);
+			worklogService.saveWorklogsToElastic(worklogList);
 			
 			System.exit(0);
 		};

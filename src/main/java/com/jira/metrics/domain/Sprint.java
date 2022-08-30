@@ -7,16 +7,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Sprint {
+	/* ####### Fields ####### */
 	@JsonProperty("id")
 	private Long id;
+	
 	@JsonProperty("name")
 	private String name;
+	
 	@JsonProperty("state")
 	private String state;
+	
 	@JsonProperty("startDate")
 	private Date startDate;
+	
 	@JsonProperty("endDate")
 	private Date endDate;
+	
+	/* ####### Getters and Setters #######*/
 	public Long getId() {
 		return id;
 	}
@@ -48,6 +55,7 @@ public class Sprint {
 		this.endDate = endDate;
 	}
 	
+	/* ####### toString method ####### */
 	@Override
 	public String toString() {
 		return "Sprint [id=" + id + ", name=" + name + ", state=" + state + ", startDate=" + startDate + ", endDate="

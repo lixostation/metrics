@@ -5,7 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SearchResult {
+public class JQLSearchResult {
 	private int startAt;
     private int maxResults;
     private int total;
