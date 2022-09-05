@@ -11,6 +11,7 @@ import com.jira.metrics.domain.JQLSearchResult;
 import com.jira.metrics.domain.Worklog;
 import com.jira.metrics.service.IssueService;
 import com.jira.metrics.service.JQLSearchResultService;
+import com.jira.metrics.service.SprintService;
 import com.jira.metrics.service.WorklogService;
 
 @SpringBootApplication
@@ -24,7 +25,8 @@ public class MetricsApplication {
 	@Bean
 	public CommandLineRunner run(JQLSearchResultService searchResultService, 
 			                     IssueService issueService,
-			                     WorklogService worklogService) throws Exception {
+			                     WorklogService worklogService,
+			                     SprintService sprintService) throws Exception {
 		return args ->{
 			JQLSearchResult jqlSearchResult = searchResultService.runJQL();
 			
@@ -33,6 +35,8 @@ public class MetricsApplication {
 			
 			List<Worklog> worklogList = worklogService.getWorklogsFromJira(issueKeyList);
 			worklogService.saveWorklogsToElastic(worklogList);
+			
+			sprintService.saveSprintsToElastic();
 			
 			System.exit(0);
 		};

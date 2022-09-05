@@ -2,25 +2,36 @@ package com.jira.metrics.domain;
 
 import java.util.Date;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Document(indexName = "sprints")
 public class Sprint {
 	/* ####### Fields ####### */
 	@JsonProperty("id")
+	@Id
 	private Long id;
 	
 	@JsonProperty("name")
+	@Field(type = FieldType.Text, name = "name")
 	private String name;
 	
 	@JsonProperty("state")
+	@Field(type = FieldType.Text, name = "state")
 	private String state;
 	
 	@JsonProperty("startDate")
+	@Field(type = FieldType.Date, name = "startDate")
 	private Date startDate;
 	
 	@JsonProperty("endDate")
+	@Field(type = FieldType.Date, name = "endDate")
 	private Date endDate;
 	
 	/* ####### Getters and Setters #######*/

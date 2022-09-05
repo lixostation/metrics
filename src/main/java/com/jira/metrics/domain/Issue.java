@@ -1,8 +1,10 @@
 package com.jira.metrics.domain;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +16,8 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jira.metrics.Utils;
+import com.jira.metrics.service.SprintService;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Document(indexName = "issues")
@@ -66,6 +70,12 @@ public class Issue {
 	
 	@Field(type = FieldType.Text, name = "projectName")
 	private String projectName;
+	
+	@Field(type = FieldType.Date, name = "created")
+	private Date created;
+	
+	@Field(type = FieldType.Date, name = "updated")
+	private Date updated;
 	
 	/* ####### Getters and Setters #######*/
 	public Long getId() {
@@ -196,6 +206,22 @@ public class Issue {
 		this.projectName = projectName;
 	}
 	
+	public Date getCreated() {
+		return created;
+	}
+
+	public void setCreated(Date created) {
+		this.created = created;
+	}
+
+	public Date getUpdated() {
+		return updated;
+	}
+
+	public void setUpdated(Date updated) {
+		this.updated = updated;
+	}
+
 	/* ####### toString method ####### */
 	@Override
 	public String toString() {
@@ -203,10 +229,13 @@ public class Issue {
 				+ ", status=" + status + ", storyPoints=" + storyPoints + ", sprintId=" + sprintId + ", sprintName="
 				+ sprintName + ", timeOriginalEstimate=" + timeOriginalEstimate + ", timeEstimate=" + timeEstimate
 				+ ", timeSpent=" + timeSpent + ", rootCause=" + rootCause + ", rootCauseAnalysis=" + rootCauseAnalysis
-				+ ", projectId=" + projectId + ", projectKey=" + projectKey + ", projectName=" + projectName + "]";
+				+ ", projectId=" + projectId + ", projectKey=" + projectKey + ", projectName=" + projectName
+				+ ", created=" + created + ", updated=" + updated + "]";
 	}
 	
 	
+	
+
 	/**
 	 * Logic to collect nested JSON objects containing the fields of an issue
 	 * @param Map representing the fields Object coming from JIRA JSON
@@ -237,6 +266,7 @@ public class Issue {
 			for (Map<String, Object> sprint : sprintsJSONList) {
 				Sprint sprintPojo = objMapper.convertValue(sprint, Sprint.class);
 				sprintsPOJOList.add(sprintPojo);
+				SprintService.sprintsToSave.put(sprintPojo.getId(), sprintPojo);
 			}
 			Collections.sort(sprintsPOJOList, Comparator.comparing(Sprint::getStartDate));
 			this.sprintId = sprintsPOJOList.get(0).getId();
@@ -282,7 +312,17 @@ public class Issue {
 		this.projectKey = (String) projectJson.get("key");
 		this.projectName = (String) projectJson.get("name");
 		
-	}
+		
+		try {
+			//Created
+			this.created = Utils.convertJiraDate((String) fields.get("created"));
+			
+			//updated
+			this.updated = Utils.convertJiraDate((String) fields.get("updated"));
+		} catch (ParseException e) {
 
+		}
+		
+	}
 
 }

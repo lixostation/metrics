@@ -10,7 +10,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Document(indexName = "worklog")
+@Document(indexName = "worklogs")
 public class Worklog {
 	/* ####### Fields ####### */
 	@Id
