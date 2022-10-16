@@ -8,11 +8,11 @@
 		<version>2.7.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.example</groupId>
-	<artifactId>demo</artifactId>
+	<groupId>lixo.station</groupId>
+	<artifactId>metrix</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>demo</name>
-	<description>Demo project for Spring Boot</description>
+	<name>metrix</name>
+	<description>Spring Boot application to collect data from JIRA and save on Elasticsearch</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>

@@ -23,7 +23,7 @@ public class WorklogService {
 	
 	private RestTemplate restTemplate;
 	private RestTemplateBuilder builder = new RestTemplateBuilder();
-	private Logger logger = LoggerFactory.getLogger(JQLSearchResultService.class);
+	private Logger logger = LoggerFactory.getLogger(WorklogService.class);
 	
 	@Value("${jira.issue.url}")
 	private String url;
@@ -53,7 +53,6 @@ public class WorklogService {
 		for (String key : issueKeysList) {
 			logger.info("Collecting worklogs for: " + key);
 			String issueUrl = url + key + "/worklog";
-			logger.info(issueUrl);
 			WorklogResult worklogResult = restTemplate.getForObject(issueUrl, WorklogResult.class);
 			result.addAll(worklogResult.getWorklogs());
 		}

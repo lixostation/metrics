@@ -1,10 +1,8 @@
 package com.jira.metrics.domain;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +14,6 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jira.metrics.Utils;
 import com.jira.metrics.service.SprintService;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -47,6 +44,9 @@ public class Issue {
 	@Field(type = FieldType.Text, name = "sprintName")
 	private String sprintName;
 	
+	@Field(type = FieldType.Integer, name = "numberOfSprints")
+	private Integer numberOfSprints;
+	
 	@Field(type = FieldType.Long, name = "timeOriginalEstimate")
 	private Long timeOriginalEstimate;
 	
@@ -70,12 +70,6 @@ public class Issue {
 	
 	@Field(type = FieldType.Text, name = "projectName")
 	private String projectName;
-	
-	@Field(type = FieldType.Date, name = "created")
-	private Date created;
-	
-	@Field(type = FieldType.Date, name = "updated")
-	private Date updated;
 	
 	/* ####### Getters and Setters #######*/
 	public Long getId() {
@@ -140,6 +134,14 @@ public class Issue {
 
 	public void setSprintName(String sprintName) {
 		this.sprintName = sprintName;
+	}
+	
+	public Integer getNumberOfSprints() {
+		return numberOfSprints;
+	}
+
+	public void setNumberOfSprints(Integer numberOfSprints) {
+		this.numberOfSprints = numberOfSprints;
 	}
 
 	public Long getTimeOriginalEstimate() {
@@ -206,36 +208,17 @@ public class Issue {
 		this.projectName = projectName;
 	}
 	
-	public Date getCreated() {
-		return created;
-	}
-
-	public void setCreated(Date created) {
-		this.created = created;
-	}
-
-	public Date getUpdated() {
-		return updated;
-	}
-
-	public void setUpdated(Date updated) {
-		this.updated = updated;
-	}
-
 	/* ####### toString method ####### */
 	@Override
 	public String toString() {
 		return "Issue [id=" + id + ", key=" + key + ", summary=" + summary + ", issuetypeName=" + issuetypeName
 				+ ", status=" + status + ", storyPoints=" + storyPoints + ", sprintId=" + sprintId + ", sprintName="
-				+ sprintName + ", timeOriginalEstimate=" + timeOriginalEstimate + ", timeEstimate=" + timeEstimate
-				+ ", timeSpent=" + timeSpent + ", rootCause=" + rootCause + ", rootCauseAnalysis=" + rootCauseAnalysis
-				+ ", projectId=" + projectId + ", projectKey=" + projectKey + ", projectName=" + projectName
-				+ ", created=" + created + ", updated=" + updated + "]";
+				+ sprintName + ", numberOfSprints=" + numberOfSprints + ", timeOriginalEstimate=" + timeOriginalEstimate
+				+ ", timeEstimate=" + timeEstimate + ", timeSpent=" + timeSpent + ", rootCause=" + rootCause
+				+ ", rootCauseAnalysis=" + rootCauseAnalysis + ", projectId=" + projectId + ", projectKey=" + projectKey
+				+ ", projectName=" + projectName + "]";
 	}
-	
-	
-	
-
+		
 	/**
 	 * Logic to collect nested JSON objects containing the fields of an issue
 	 * @param Map representing the fields Object coming from JIRA JSON
@@ -271,6 +254,7 @@ public class Issue {
 			Collections.sort(sprintsPOJOList, Comparator.comparing(Sprint::getStartDate));
 			this.sprintId = sprintsPOJOList.get(0).getId();
 			this.sprintName = sprintsPOJOList.get(0).getName();
+			this.numberOfSprints = sprintsPOJOList.size();
 		} catch (NullPointerException e) {
 			System.out.println(key + "Sprint was null");//TODO Remove System.out - Replace with logger
 		}
@@ -303,25 +287,19 @@ public class Issue {
 		}
 		
 		//Root Cause
-		this.rootCause = (String) fields.get("customfield_10031");
-		this.rootCauseAnalysis  = (String) fields.get("customfield_10032");
+		//this.rootCauseAnalysis  = (String) fields.get("customfield_10032");
+		try {
+			Map<String, String> rootCauseJson = (Map<String, String>) fields.get("customfield_10031");
+			this.rootCause = rootCauseJson.get("value");	
+		} catch (Exception e) {
+		}
+		
 		
 		//Project
 		Map<String, String> projectJson = (Map<String, String>) fields.get("project"); 
 		this.projectId = Long.valueOf((String) projectJson.get("id"));
 		this.projectKey = (String) projectJson.get("key");
 		this.projectName = (String) projectJson.get("name");
-		
-		
-		try {
-			//Created
-			this.created = Utils.convertJiraDate((String) fields.get("created"));
-			
-			//updated
-			this.updated = Utils.convertJiraDate((String) fields.get("updated"));
-		} catch (ParseException e) {
-
-		}
 		
 	}
 

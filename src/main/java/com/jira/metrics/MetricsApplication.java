@@ -7,8 +7,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import com.jira.metrics.domain.History;
 import com.jira.metrics.domain.JQLSearchResult;
 import com.jira.metrics.domain.Worklog;
+import com.jira.metrics.service.ChangelogService;
+import com.jira.metrics.service.HistoryService;
 import com.jira.metrics.service.IssueService;
 import com.jira.metrics.service.JQLSearchResultService;
 import com.jira.metrics.service.SprintService;
@@ -26,17 +29,23 @@ public class MetricsApplication {
 	public CommandLineRunner run(JQLSearchResultService searchResultService, 
 			                     IssueService issueService,
 			                     WorklogService worklogService,
-			                     SprintService sprintService) throws Exception {
+			                     SprintService sprintService,
+			                     ChangelogService changelogService,
+			                     HistoryService historyService) throws Exception {
 		return args ->{
-			JQLSearchResult jqlSearchResult = searchResultService.runJQL();
+			//JQLSearchResult jqlSearchResult = searchResultService.runJQL();
 			
-			issueService.saveIssuesToElastic(jqlSearchResult.getIssues());
+			//issueService.saveIssuesToElastic(jqlSearchResult.getIssues());
 			List<String> issueKeyList = issueService.getIssuekeysFromElastic();
 			
-			List<Worklog> worklogList = worklogService.getWorklogsFromJira(issueKeyList);
-			worklogService.saveWorklogsToElastic(worklogList);
+			//List<Worklog> worklogList = worklogService.getWorklogsFromJira(issueKeyList);
+			//worklogService.saveWorklogsToElastic(worklogList);
 			
-			sprintService.saveSprintsToElastic();
+			//sprintService.saveSprintsToElastic();
+			
+			List<History> historyList = changelogService.getHistoryFromJira(issueKeyList);
+			historyService.saveHistoryToElastic(historyList);
+			
 			
 			System.exit(0);
 		};
